@@ -3,11 +3,14 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'tio-marco-cantina-django-chave-secreta-2026-troque-em-producao-0123456789abcdef')
+# Em producao defina DJANGO_SECRET_KEY (nunca suba a chave real para o GitHub).
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'chave-apenas-para-desenvolvimento-local-0123456789abcdefghijklmnop')
 
 DEBUG = os.environ.get('DJANGO_DEBUG', '1') == '1'
 
-ALLOWED_HOSTS = ['*']
+# Em producao: DJANGO_ALLOWED_HOSTS="seuusuario.pythonanywhere.com" (separe varios por virgula)
+_hosts = os.environ.get('DJANGO_ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = [h.strip() for h in _hosts.split(',') if h.strip()] or ['*']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -79,3 +82,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = 'login'  # /login/admin/
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'home'
+
+# Seguranca extra quando em producao (DEBUG desligado)
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
