@@ -1,0 +1,18 @@
+{% extends 'cantina/base.html' %}
+{% block title %}{{ titulo }}{% endblock %}
+{% block content %}
+<h1>{{ titulo }}</h1>
+<div class="card" style="max-width:640px">
+<form method="post" enctype="multipart/form-data" novalidate>{% csrf_token %}
+  {{ form.non_field_errors }}
+  {% for field in form %}
+    {% if field.field.widget.input_type == 'checkbox' %}
+      <p><label class="inline">{{ field }} {{ field.label }}</label>{{ field.errors }}</p>
+    {% else %}
+      <label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{{ field.errors }}
+    {% endif %}
+  {% endfor %}
+  <p style="margin-top:1.2rem"><button class="btn" type="submit">Salvar</button>
+  <a class="btn sec" href="{% url 'produtos' %}">Cancelar</a></p>
+</form></div>
+{% endblock %}

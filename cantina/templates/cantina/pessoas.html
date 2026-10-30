@@ -1,0 +1,18 @@
+{% extends 'cantina/base.html' %}
+{% block title %}Pessoas{% endblock %}
+{% block content %}
+<div class="row"><h1>Professores, funcionários e alunos</h1><a class="btn" href="{% url 'pessoa_novo' %}">+ Nova pessoa</a></div>
+<div class="chips">
+  <a class="chip {% if not tipo %}on{% endif %}" href="{% url 'pessoas' %}">Todos</a>
+  {% for val, nome in tipos %}<a class="chip {% if tipo == val %}on{% endif %}" href="?tipo={{ val }}" style="text-decoration:none;color:inherit">{{ nome }}</a>{% endfor %}
+</div>
+<div class="card table-wrap"><table>
+<tr><th>Nome</th><th>Tipo</th><th>Matrícula</th><th>Paga mensal?</th><th class="right">A pagar</th><th>Status</th><th></th></tr>
+{% for p in pessoas %}<tr><td>{{ p.nome_completo }}</td><td>{{ p.get_tipo_display }}</td><td>{{ p.matricula|default:"—" }}</td>
+<td>{% if p.pode_pagar_mensalmente %}Sim{% else %}Não{% endif %}</td>
+<td class="right">{% if p.a_pagar %}<span class="badge warn">R$ {{ p.a_pagar|floatformat:2 }}</span>{% else %}<span class="muted">R$ 0,00</span>{% endif %}</td>
+<td><span class="badge {% if p.ativo %}ok{% endif %}">{% if p.ativo %}Ativo{% else %}Inativo{% endif %}</span></td>
+<td class="right"><a class="btn sec sm" href="{% url 'pessoa_editar' p.pk %}">Editar</a></td></tr>
+{% empty %}<tr><td colspan="7" class="muted">Nenhuma pessoa cadastrada. Rode <code>python manage.py seed_dados</code> para carregar a lista inicial.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

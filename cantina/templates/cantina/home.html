@@ -1,0 +1,54 @@
+{% extends 'cantina/base.html' %}
+{% block title %}Cardápio - Cantina Tio Marco{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Cantina do Tio Marco</h1>
+  <p>Lanches fresquinhos, doces e bebidas. Confira os preços e as formas de pagamento.</p>
+</section>
+
+<div class="card">
+  <h2>💳 Formas de pagamento</h2>
+  <div class="chips" style="margin-bottom:.5rem">
+    {% for val, nome in formas %}<span class="badge ok" style="font-size:.95rem;padding:.35rem .9rem">{{ nome }}</span>{% endfor %}
+  </div>
+  <p class="muted" style="margin:0">Professores e funcionários também podem pagar <b>no fim do mês</b> (compras no crédito ou débito ficam em conta mensal).</p>
+</div>
+
+{% if grupos %}
+<div class="chips">
+  <button type="button" class="chip on" data-cat="all">Todos</button>
+  {% for g in grupos %}<button type="button" class="chip" data-cat="{{ g.categoria.id }}">{{ g.categoria.nome }}</button>{% endfor %}
+</div>
+{% for g in grupos %}
+<section class="catbloco" data-cat="{{ g.categoria.id }}">
+  <h2>{{ g.categoria.nome }}</h2>
+  <div class="tiles" style="margin-bottom:1.5rem">
+    {% for p in g.produtos %}
+    <div class="tile">
+      {% if p.foto %}<img class="pic" src="{{ p.foto.url }}" alt="{{ p.nome }}" loading="lazy">{% else %}<div class="pic ph">{{ p.icone }}</div>{% endif %}
+      <h3 style="margin:0 0 .25rem;font-size:1rem">{{ p.nome }}</h3>
+      {% if p.descricao %}<small class="muted">{{ p.descricao }}</small><br>{% endif %}
+      <div class="price">R$ {{ p.preco|floatformat:2 }}</div>
+      {% if p.quantidade <= 0 %}<span class="badge bad">Esgotado</span>{% endif %}
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+{% else %}
+<div class="card muted">Nenhum produto cadastrado ainda.</div>
+{% endif %}
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.chip[data-cat]').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.chip[data-cat]').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on');
+    document.querySelectorAll('.catbloco').forEach(function(t){
+      t.style.display=(b.dataset.cat==='all'||t.dataset.cat===b.dataset.cat)?'':'none';
+    });
+  });
+});
+</script>
+{% endblock %}

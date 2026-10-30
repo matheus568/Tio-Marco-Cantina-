@@ -1,0 +1,35 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}Cantina Tio Marco{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'cantina/css/style.css' %}">
+</head>
+<body>
+{% if user.is_authenticated %}
+<nav class="topbar">
+  <span class="logo">🍽️ Cantina Tio Marco</span>
+  <a href="{% url 'home' %}">Cardápio</a>
+  <a href="{% url 'dashboard' %}">Painel</a>
+  <a href="{% url 'venda_nova' %}">Nova venda</a>
+  <a href="{% url 'vendas' %}">Vendas</a>
+  <a href="{% url 'contas_mensais' %}">Contas mensais</a>
+  <a href="{% url 'produtos' %}">Produtos</a>
+  <a href="{% url 'categorias' %}">Categorias</a>
+  <a href="{% url 'pessoas' %}">Pessoas</a>
+  <a href="{% url 'logout' %}">Sair</a>
+</nav>
+{% else %}
+<nav class="topbar">
+  <span class="logo">🍽️ Cantina Tio Marco</span>
+  <a class="btn sec" href="{% url 'login' %}">🔒 Entrar (administrador)</a>
+</nav>
+{% endif %}
+<main class="container">
+  {% if messages %}<ul class="msgs">{% for m in messages %}<li class="{{ m.tags }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
+  {% block content %}{% endblock %}
+</main>
+{% block scripts %}{% endblock %}
+</body>
+</html>

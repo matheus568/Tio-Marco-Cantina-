@@ -1,0 +1,29 @@
+{% extends 'cantina/base.html' %}
+{% block title %}Vitrine{% endblock %}
+{% block content %}
+<div class="row"><h1>Vitrine</h1><a class="btn" href="{% url 'venda_nova' %}">Fazer venda</a></div>
+<div class="chips">
+  <button type="button" class="chip on" data-cat="all">Todos</button>
+  {% for c in categorias %}<button type="button" class="chip" data-cat="{{ c.id }}">{{ c.nome }}</button>{% endfor %}
+</div>
+<div class="tiles">
+  {% for p in produtos %}
+  <div class="tile" data-cat="{{ p.categoria_id }}">{% if p.foto %}<img class="pic" src="{{ p.foto.url }}" alt="{{ p.nome }}" loading="lazy">{% else %}<div class="pic ph">{{ p.icone }}</div>{% endif %}<small class="muted">{{ p.categoria.nome }}</small>
+    <h2>{{ p.nome }}</h2><div class="price">R$ {{ p.preco|floatformat:2 }}</div>
+    <small class="muted">{{ p.quantidade }} em estoque</small></div>
+  {% empty %}<p class="muted">Nenhum produto disponível.</p>{% endfor %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+document.querySelectorAll('.chip').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.chip').forEach(function(x){x.classList.remove('on')});
+    b.classList.add('on');
+    document.querySelectorAll('.tile').forEach(function(t){
+      t.style.display=(b.dataset.cat==='all'||t.dataset.cat===b.dataset.cat)?'':'none';
+    });
+  });
+});
+</script>
+{% endblock %}

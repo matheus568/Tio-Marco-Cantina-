@@ -1,0 +1,82 @@
+{% extends 'cantina/base.html' %}
+{% block title %}Nova venda{% endblock %}
+{% block content %}
+<h1>Nova venda</h1>
+<form method="post" id="f">{% csrf_token %}
+<div class="grid g2">
+  <div class="card">
+    <h2>Cliente e pagamento</h2>
+    <label for="pessoa">Pessoa (opcional)</label>
+    <select id="pessoa" name="pessoa_id">
+      <option value="" data-mensal="0">Avulso / sem cadastro</option>
+      {% for p in pessoas %}<option value="{{ p.id }}" data-mensal="{% if p.pode_pagar_mensalmente %}1{% else %}0{% endif %}">{{ p.nome_completo }} — {{ p.get_tipo_display }}</option>{% endfor %}
+    </select>
+    <label for="forma">Forma de pagamento</label>
+    <select id="forma" name="forma_pagamento" required>
+      <option value="">Selecione…</option>
+      <option value="DINHEIRO">Dinheiro</option><option value="PIX">Pix</option>
+      <option value="DEBITO">Débito</option><option value="CREDITO">Crédito</option>
+    </select>
+    <div id="mensal" style="display:none">
+      <p><label class="inline"><input type="checkbox" id="pm" name="pagar_mensal" value="sim"> Pagar no fim do mês (conta mensal)</label></p>
+      <div id="venc" style="display:none"><label for="vencimento">Vencimento</label>
+      <input type="date" id="vencimento" name="vencimento" min="{{ hoje|date:'Y-m-d' }}"></div>
+    </div>
+    <label for="obs">Observações</label>
+    <textarea id="obs" name="observacoes" rows="2"></textarea>
+  </div>
+  <div class="card">
+    <h2>Produtos</h2>
+    <input type="text" id="busca" placeholder="Buscar produto…" style="margin-bottom:.5rem">
+    {% for p in produtos %}
+    <div class="prod" data-nome="{{ p.nome|lower }}">{% if p.foto %}<img class="pic thumb" src="{{ p.foto.url }}" alt="{{ p.nome }}" loading="lazy">{% else %}<div class="pic thumb ph">{{ p.icone }}</div>{% endif %}
+      <input type="checkbox" class="form-check-input it" name="itens" value="{{ p.id }}" data-preco="{{ p.preco|stringformat:'.2f' }}" id="i{{ p.id }}">
+      <label for="i{{ p.id }}" style="margin:0;font-weight:500">{{ p.nome }}<br><small class="muted">{{ p.categoria.nome }} · {{ p.quantidade }} em estoque</small></label>
+      <span class="price">R$ {{ p.preco|floatformat:2 }}</span>
+      <input type="number" class="qt" name="qtd_{{ p.id }}" value="1" min="1" max="{{ p.quantidade }}">
+    </div>
+    {% empty %}<p class="muted">Nenhum produto com estoque. <a href="{% url 'produto_novo' %}">Cadastrar produto</a>.</p>{% endfor %}
+  </div>
+</div>
+<div class="totalbar"><span>Total: <b id="total">R$ 0,00</b></span><button class="btn ok" type="submit">Finalizar venda</button></div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+(function(){
+  var pessoa=document.getElementById('pessoa'), forma=document.getElementById('forma'),
+      mensal=document.getElementById('mensal'), pm=document.getElementById('pm'),
+      venc=document.getElementById('venc'), vi=document.getElementById('vencimento');
+  function fmt(v){return 'R$ '+v.toFixed(2).replace('.',',');}
+  function total(){
+    var t=0;
+    document.querySelectorAll('.prod').forEach(function(r){
+      var c=r.querySelector('.it'), q=parseInt(r.querySelector('.qt').value,10)||0;
+      if(c.checked&&q>0) t+=parseFloat(c.dataset.preco)*q;
+    });
+    document.getElementById('total').textContent=fmt(t);
+  }
+  function regras(){
+    var ok=pessoa.options[pessoa.selectedIndex].dataset.mensal==='1' && (forma.value==='CREDITO'||forma.value==='DEBITO');
+    mensal.style.display=ok?'':'none';
+    if(!ok){pm.checked=false;}
+    venc.style.display=(ok&&pm.checked)?'':'none';
+    vi.required=ok&&pm.checked;
+  }
+  document.querySelectorAll('.prod').forEach(function(r){
+    var c=r.querySelector('.it'), q=r.querySelector('.qt');
+    q.addEventListener('input',function(){ if(parseInt(q.value,10)>0) c.checked=true; total(); });
+    c.addEventListener('change',total);
+  });
+  [pessoa,forma,pm].forEach(function(e){e.addEventListener('change',regras);});
+  document.getElementById('busca').addEventListener('input',function(e){
+    var t=e.target.value.toLowerCase();
+    document.querySelectorAll('.prod').forEach(function(r){r.classList.toggle('hidden',r.dataset.nome.indexOf(t)===-1);});
+  });
+  document.getElementById('f').addEventListener('submit',function(e){
+    if(!document.querySelector('.it:checked')){e.preventDefault();alert('Selecione pelo menos um produto.');}
+  });
+  regras(); total();
+})();
+</script>
+{% endblock %}

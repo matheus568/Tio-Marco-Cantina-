@@ -1,0 +1,13 @@
+{% extends 'cantina/base.html' %}
+{% block title %}Produtos{% endblock %}
+{% block content %}
+<div class="row"><h1>Produtos</h1><span><a class="btn sec" href="{% url 'produtos_tela' %}">Ver vitrine</a> <a class="btn" href="{% url 'produto_novo' %}">+ Novo produto</a></span></div>
+<div class="card table-wrap"><table>
+<tr><th></th><th>Produto</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Status</th><th></th></tr>
+{% for p in produtos %}<tr><td style="width:56px">{% if p.foto %}<img class="pic thumb" src="{{ p.foto.url }}" alt="{{ p.nome }}" loading="lazy">{% else %}<div class="pic thumb ph">{{ p.icone }}</div>{% endif %}</td><td>{{ p.nome }}</td><td>{{ p.categoria.nome }}</td><td>R$ {{ p.preco|floatformat:2 }}</td>
+<td><span class="badge {% if p.quantidade == 0 %}bad{% elif p.quantidade < 10 %}warn{% else %}ok{% endif %}">{{ p.quantidade }}</span></td>
+<td>{% if p.ativo %}Ativo{% else %}Inativo{% endif %}</td>
+<td class="right"><a class="btn sec sm" href="{% url 'produto_editar' p.pk %}">Editar</a></td></tr>
+{% empty %}<tr><td colspan="7" class="muted">Nenhum produto cadastrado. Cadastre uma categoria primeiro.</td></tr>{% endfor %}
+</table></div>
+{% endblock %}

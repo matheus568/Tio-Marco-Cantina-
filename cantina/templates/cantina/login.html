@@ -1,0 +1,15 @@
+{% extends 'cantina/base.html' %}
+{% block title %}Entrar - Cantina Tio Marco{% endblock %}
+{% block content %}
+<div class="login card">
+  <h1>🍽️ Cantina Tio Marco</h1>
+  <p class="muted">Acesso restrito ao administrador.</p>
+  <form method="post">{% csrf_token %}
+    <label for="username">Usuário</label>
+    <input id="username" type="text" name="username" autofocus required>
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" name="senha" required>
+    <p><button class="btn" type="submit">Entrar</button></p>
+  </form>
+</div>
+{% endblock %}

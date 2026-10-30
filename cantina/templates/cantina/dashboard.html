@@ -1,0 +1,36 @@
+{% extends 'cantina/base.html' %}
+{% block title %}Início - Cantina Tio Marco{% endblock %}
+{% block content %}
+<div class="row"><h1>Painel</h1><a class="btn" href="{% url 'venda_nova' %}">+ Nova venda</a></div>
+<div class="grid g4" style="margin-bottom:1.25rem">
+  <div class="stat"><small>Vendido hoje</small><b>R$ {{ total_hoje|floatformat:2 }}</b></div>
+  <div class="stat"><small>Vendas hoje</small><b>{{ qtd_vendas_hoje }}</b></div>
+  <div class="stat"><small>Contas em aberto</small><b>{{ contas_abertas }}</b> <span class="muted">(R$ {{ valor_contas_abertas|floatformat:2 }})</span></div>
+  <div class="stat"><small>Produtos ativos / Pessoas</small><b>{{ total_produtos }} / {{ total_pessoas }}</b></div>
+</div>
+<div class="grid g2">
+  <div class="card"><h2>Últimas vendas</h2>
+    <div class="table-wrap"><table>
+      <tr><th>#</th><th>Pessoa</th><th>Total</th><th>Status</th></tr>
+      {% for v in ultimas_vendas %}
+      <tr><td><a href="{% url 'venda_detalhe' v.pk %}">{{ v.id }}</a></td><td>{{ v.pessoa.nome_completo|default:"Avulso" }}</td><td>R$ {{ v.total|floatformat:2 }}</td>
+      <td><span class="badge {% if v.status == 'PAGO' %}ok{% else %}warn{% endif %}">{{ v.get_status_display }}</span></td></tr>
+      {% empty %}<tr><td colspan="4" class="muted">Nenhuma venda ainda.</td></tr>{% endfor %}
+    </table></div></div>
+  <div class="card"><h2>Estoque baixo</h2>
+    <div class="table-wrap"><table>
+      <tr><th>Produto</th><th>Qtd</th></tr>
+      {% for p in produtos_baixo %}<tr><td><a href="{% url 'produto_editar' p.pk %}">{{ p.nome }}</a></td><td><span class="badge {% if p.quantidade == 0 %}bad{% else %}warn{% endif %}">{{ p.quantidade }}</span></td></tr>
+      {% empty %}<tr><td colspan="2" class="muted">Estoque ok.</td></tr>{% endfor %}
+    </table></div></div>
+</div>
+<div class="card"><h2>Contas mensais a vencer</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Pessoa</th><th>Valor</th><th>Vencimento</th><th></th></tr>
+    {% for c in contas_vencendo %}
+    <tr><td>{{ c.pessoa.nome_completo }}</td><td>R$ {{ c.valor|floatformat:2 }}</td>
+    <td>{{ c.vencimento|date:"d/m/Y" }} {% if c.vencimento < hoje %}<span class="badge bad">vencida</span>{% endif %}</td>
+    <td class="right"><form method="post" action="{% url 'conta_pagar' c.pk %}">{% csrf_token %}<button class="btn ok sm">Marcar paga</button></form></td></tr>
+    {% empty %}<tr><td colspan="4" class="muted">Nenhuma conta em aberto.</td></tr>{% endfor %}
+  </table></div></div>
+{% endblock %}

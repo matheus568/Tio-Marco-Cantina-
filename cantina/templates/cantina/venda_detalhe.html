@@ -1,0 +1,17 @@
+{% extends 'cantina/base.html' %}
+{% block title %}Venda #{{ venda.id }}{% endblock %}
+{% block content %}
+<div class="row"><h1>Venda #{{ venda.id }}</h1><a class="btn sec" href="{% url 'vendas' %}">← Voltar</a></div>
+<div class="card">
+  <p><b>Data:</b> {{ venda.data_venda|date:"d/m/Y H:i" }} &nbsp; <b>Operador:</b> {{ venda.usuario.get_username }}</p>
+  <p><b>Pessoa:</b> {{ venda.pessoa.nome_completo|default:"Avulso" }} &nbsp; <b>Pagamento:</b> {{ venda.get_forma_pagamento_display }} ({{ venda.get_tipo_pagamento_display }})
+  {% if venda.vencimento %}&nbsp; <b>Vencimento:</b> {{ venda.vencimento|date:"d/m/Y" }}{% endif %}
+  &nbsp; <span class="badge {% if venda.status == 'PAGO' %}ok{% else %}warn{% endif %}">{{ venda.get_status_display }}</span></p>
+  {% if venda.observacoes %}<p><b>Obs.:</b> {{ venda.observacoes }}</p>{% endif %}
+  <div class="table-wrap"><table>
+    <tr><th>Produto</th><th>Qtd</th><th>Unitário</th><th class="right">Subtotal</th></tr>
+    {% for i in itens %}<tr><td>{{ i.produto.nome }}</td><td>{{ i.quantidade }}</td><td>R$ {{ i.preco_unitario|floatformat:2 }}</td><td class="right">R$ {{ i.subtotal|floatformat:2 }}</td></tr>{% endfor %}
+    <tr><th colspan="3" class="right">Total</th><th class="right">R$ {{ venda.total|floatformat:2 }}</th></tr>
+  </table></div>
+</div>
+{% endblock %}

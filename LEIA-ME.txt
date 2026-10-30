@@ -1,0 +1,35 @@
+CANTINA TIO MARCO - COMO RODAR (Windows, dentro da pasta do projeto)
+
+1) Criar e ativar o ambiente virtual (NAO copie a venv de outro PC, ela guarda caminhos absolutos):
+   python -m venv venv
+   venv\Scripts\activate
+
+2) Instalar dependencias:
+   pip install -r requirements.txt
+
+3) Criar as tabelas (a pasta migrations estava vazia):
+   python manage.py makemigrations cantina
+   python manage.py migrate
+
+4) Criar o administrador (precisa ser "staff", senao nao consegue entrar):
+   python manage.py createsuperuser
+
+5) Carregar produtos, precos e professores/funcionarios iniciais (opcional, edite a lista em
+   cantina/management/commands/seed_dados.py antes para colocar os nomes/precos reais):
+   python manage.py seed_dados
+
+6) Rodar:
+   python manage.py runserver
+   Abra http://127.0.0.1:8000/
+
+PAGINAS
+  http://127.0.0.1:8000/              -> publica: produtos, precos e formas de pagamento
+  http://127.0.0.1:8000/login/        -> igual a publica
+  http://127.0.0.1:8000/login/admin/  -> login do administrador (usuario e senha)
+  Todo o resto (painel, vendas, pessoas...) exige login de administrador.
+
+FOTOS DOS PRODUTOS
+  Entre como administrador -> Produtos -> Editar -> campo "Foto". Sem foto, aparece um emoji.
+  Se voce ja tinha rodado "migrate" antes desta versao, rode de novo:
+    python manage.py makemigrations cantina
+    python manage.py migrate
